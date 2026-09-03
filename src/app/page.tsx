@@ -61,7 +61,7 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-lg text-slate-100 tracking-tight">Aura Voice</span>
+                <span className="font-bold text-lg text-slate-100 tracking-tight"> Voice</span>
                 <span className="px-1.5 py-0.2 text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded">
                   AI
                 </span>
@@ -71,13 +71,13 @@ export default function LandingPage() {
           </Link>
 
           {/* Menu Links in Center */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+          {/* <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <a href="#features" className="hover:text-teal-400 transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-teal-400 transition-colors">How It Works</a>
             <a href="#workflows" className="hover:text-teal-400 transition-colors">Workflows</a>
             <a href="#pricing" className="hover:text-teal-400 transition-colors">Pricing</a>
             <a href="#testimonials" className="hover:text-teal-400 transition-colors">Testimonials</a>
-          </nav>
+          </nav> */}
 
           {/* Primary CTA Buttons on Right */}
           <div className="hidden md:flex items-center gap-4">
@@ -148,7 +148,7 @@ export default function LandingPage() {
 
             {/* Subheadline */}
             <p className="text-lg sm:text-xl text-slate-400 font-normal leading-relaxed max-w-2xl">
-              Aura Voice automatically calls back missed callers, conducts human-like conversations in <strong className="text-slate-200">English & Hindi</strong>, captures custom lead details, evaluates priority rules, and books appointments on <strong className="text-teal-400 font-semibold">Google Calendar 24/7</strong>.
+              Voice automatically calls back missed callers, conducts human-like conversations in <strong className="text-slate-200">English & Hindi</strong>, captures custom lead details, evaluates priority rules, and books appointments on <strong className="text-teal-400 font-semibold">Google Calendar 24/7</strong>.
             </p>
 
             {/* Primary & Secondary CTA Buttons */}
@@ -157,7 +157,7 @@ export default function LandingPage() {
                 href="/dashboard"
                 className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-teal-500 hover:from-indigo-500 hover:to-teal-400 text-white font-bold text-base px-8 py-4 rounded-2xl shadow-xl shadow-indigo-600/30 hover:shadow-teal-500/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 group"
               >
-                <span>Start 14-Day Free Trial</span>
+                <span>Start Trial</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
 
@@ -201,7 +201,7 @@ export default function LandingPage() {
                   <div className="w-3 h-3 rounded-full bg-amber-500/80" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                 </div>
-                <span className="text-[11px] font-mono text-slate-400">aura-voice-dashboard.app</span>
+                <span className="text-[11px] font-mono text-slate-400">voice-dashboard.app</span>
                 <span className="w-4" />
               </div>
 
@@ -216,7 +216,7 @@ export default function LandingPage() {
                 />
               </div>
 
-              {/* Floating Overlay Badge 1 */}
+            
               <div className="absolute top-14 right-4 bg-slate-900/90 backdrop-blur-md border border-teal-500/40 p-3 rounded-xl shadow-xl flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center">
                   <PhoneCall className="w-4 h-4 animate-bounce" />
@@ -227,7 +227,6 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Floating Overlay Badge 2 */}
               <div className="absolute bottom-6 left-4 bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 p-3 rounded-xl shadow-xl flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center">
                   <Calendar className="w-4 h-4 text-indigo-400" />
@@ -242,14 +241,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. SOCIAL PROOF SECTION */}
-      <section className="py-12 bg-slate-900/50 border-y border-slate-800/80">
+      
+      {/* <section className="py-12 bg-slate-900/50 border-y border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
             Trusted by 500+ High-Growth Local Businesses & SaaS Enterprises
           </p>
 
-          {/* Logos Grid */}
+         
           <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center justify-items-center opacity-70 grayscale hover:grayscale-0 transition-all">
             <div className="flex items-center gap-2 font-extrabold text-slate-300 text-sm tracking-wider">
               <Building2 className="w-5 h-5 text-indigo-400" /> SWEET MOMENTS
@@ -271,7 +270,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Highlight Testimonial Spotlight */}
           <div className="max-w-3xl mx-auto glass-card p-6 rounded-2xl border border-indigo-500/30 flex flex-col md:flex-row items-center gap-6">
             <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-teal-400 p-0.5 shrink-0 shadow-lg">
               <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center font-bold text-slate-100 text-lg">
@@ -293,10 +291,9 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      {/* 4. FEATURES SECTION */}
-      <section id="features" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      {/* <section id="features" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <span className="px-3.5 py-1 text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full uppercase tracking-wider">
             Engineered For High Conversion
@@ -309,9 +306,9 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* 4 Cards Grid */}
+        4 Cards Grid
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Card 1 */}
+          Card 1
           <div className="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800 space-y-4">
             <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
               <GitFork className="w-6 h-6" />
@@ -322,7 +319,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Card 2 */}
+          Card 2
           <div className="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800 space-y-4">
             <div className="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
               <Calendar className="w-6 h-6" />
@@ -333,7 +330,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Card 3 */}
+          Card 3
           <div className="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800 space-y-4">
             <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
               <Globe className="w-6 h-6" />
@@ -344,7 +341,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Card 4 */}
+        Card 4
           <div className="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800 space-y-4">
             <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <Zap className="w-6 h-6" />
@@ -355,10 +352,10 @@ export default function LandingPage() {
             </p>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      {/* 5. HOW IT WORKS SECTION */}
-      <section id="how-it-works" className="py-24 bg-slate-900/40 border-y border-slate-800/80">
+     
+      {/* <section id="how-it-works" className="py-24 bg-slate-900/40 border-y border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <span className="px-3.5 py-1 text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded-full uppercase tracking-wider">
@@ -372,7 +369,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Numbered Steps */}
+         
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="glass-card p-6 rounded-2xl border border-slate-800 relative space-y-3">
               <span className="text-4xl font-extrabold text-indigo-500/40 font-mono">01</span>
@@ -407,10 +404,10 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* 6. PRICING SECTION */}
-      <section id="pricing" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      {/* <section id="pricing" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <span className="px-3.5 py-1 text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full uppercase tracking-wider">
             Flexible SaaS Pricing
@@ -419,7 +416,7 @@ export default function LandingPage() {
             Transparent Plans for Businesses of Any Size
           </h2>
 
-          {/* Monthly / Annual Toggle */}
+          
           <div className="pt-2 flex items-center justify-center gap-3">
             <span className={`text-xs font-semibold ${billingCycle === 'monthly' ? 'text-slate-200' : 'text-slate-400'}`}>Monthly</span>
             <button
@@ -435,9 +432,9 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* 3 Pricing Cards Grid */}
+ 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {/* Starter Plan */}
+         
           <div className="glass-card p-8 rounded-3xl border border-slate-800 space-y-6 flex flex-col justify-between">
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-slate-100">Starter Plan</h3>
@@ -461,7 +458,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Pro Plan (Highlighted Recommended Plan) */}
+       
           <div className="glass-card p-8 rounded-3xl border-2 border-teal-500/60 space-y-6 flex flex-col justify-between relative bg-gradient-to-b from-indigo-950/50 to-slate-950 shadow-2xl glow-indigo">
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-teal-400 to-indigo-500 text-slate-950 font-extrabold text-[11px] rounded-full uppercase tracking-wider shadow-md">
               Most Popular / Recommended
@@ -489,7 +486,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Enterprise Plan */}
+      
           <div className="glass-card p-8 rounded-3xl border border-slate-800 space-y-6 flex flex-col justify-between">
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-slate-100">Enterprise Agency</h3>
@@ -513,17 +510,17 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* 7. FINAL CTA BANNER SECTION */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="glass-card p-10 sm:p-16 rounded-3xl border border-teal-500/40 bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 text-center space-y-6 relative overflow-hidden shadow-2xl">
           <div className="w-16 h-16 rounded-2xl bg-teal-500/20 text-teal-300 flex items-center justify-center mx-auto border border-teal-500/30">
             <PhoneCall className="w-8 h-8 animate-bounce" />
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight max-w-2xl mx-auto leading-tight">
-            Ready to Turn Every Missed Call into a Booked Customer?
+            x
           </h2>
 
           <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
@@ -547,13 +544,13 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* 8. CLEAN FOOTER */}
-      <footer className="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12">
+      {/* <footer className="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-            {/* Logo & Bio Column (2 cols) */}
+          
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-teal-400 p-0.5">
@@ -568,7 +565,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Links Column 1 */}
+            
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Product</h4>
               <ul className="space-y-2 text-xs text-slate-400">
@@ -579,7 +576,7 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Links Column 2 */}
+            
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Solutions</h4>
               <ul className="space-y-2 text-xs text-slate-400">
@@ -590,7 +587,7 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Newsletter Column */}
+            
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Newsletter</h4>
               <p className="text-xs text-slate-400">Get the latest AI receptionist updates.</p>
@@ -623,7 +620,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }

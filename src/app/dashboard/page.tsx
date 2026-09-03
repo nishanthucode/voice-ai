@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [triggeringCall, setTriggeringCall] = useState(false);
   const [toast, setToast] = useState<{ message: string, visible: boolean }>({ message: '', visible: false });
 
   // Filters
@@ -100,6 +101,37 @@ export default function DashboardPage() {
     setTimeout(() => setToast({ message: '', visible: false }), 3000);
   };
 
+  const handleSimulateCallback = async () => {
+    // We'll prompt the user for their phone number so the AI can call them back
+    const phone = window.prompt("Enter your verified Twilio phone number to receive the AI callback (e.g., +14053577940):", "+1");
+    if (!phone) return;
+
+    setTriggeringCall(true);
+    showToast(`Initiating callback to ${phone}...`);
+    
+    try {
+      const res = await fetch('/api/voice/call-back', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerPhone: phone,
+          businessId: selectedBusinessId,
+          workflowId: 'wf_cake_order_01'
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      
+      showToast('AI is calling you now! Please answer your phone.');
+      setTimeout(fetchConversations, 5000); // refresh feed after a bit
+    } catch (e: any) {
+      console.error(e);
+      showToast(`Failed to call: ${e.message}`);
+    } finally {
+      setTriggeringCall(false);
+    }
+  };
+
   const currentBusiness = businesses.find(b => b.id === selectedBusinessId);
 
   const filteredConversations = conversations.filter(item => {
@@ -162,6 +194,14 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={handleSimulateCallback}
+                disabled={triggeringCall}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-500/20 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                <PhoneMissed className={`w-4 h-4 ${triggeringCall ? 'animate-pulse' : ''}`} />
+                <span>{triggeringCall ? 'Calling...' : 'Trigger AI Callback'}</span>
+              </button>
               <button
                 onClick={fetchConversations}
                 aria-label="Refresh Data"
