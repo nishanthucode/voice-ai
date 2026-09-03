@@ -94,7 +94,7 @@ export class GeminiService {
         ];
 
         const response = await this.ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.6-flash',
           contents: contents as any,
           config: {
             temperature: 0.3,
@@ -117,7 +117,7 @@ export class GeminiService {
 
               // Follow-up call to Gemini with tool result
               const toolFollowUp = await this.ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-3.6-flash',
                 contents: [
                   ...contents as any,
                   { role: 'model', parts: [{ functionCall: call }] },
