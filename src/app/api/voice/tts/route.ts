@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const audioData = await synthesizeSpeech(text, voiceId);
 
     // Return the audio as a stream/blob response
-    return new NextResponse(audioData, {
+    return new NextResponse(audioData as any, {
       headers: {
         'Content-Type': 'audio/mpeg',
         'Content-Length': audioData.length.toString(),

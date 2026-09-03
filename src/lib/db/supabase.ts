@@ -462,9 +462,9 @@ class LocalDbRepository {
   // ──────────────────────────────────────────────────────────────
   // Use‑Case Helpers
   // ──────────────────────────────────────────────────────────────
-  public useCases: { id: string; business_id: string; name: string; trigger: TriggerType }[] = [];
+  public useCases: { id: string; business_id: string; name: string; trigger: string }[] = [];
   public simulations: { id: string; workflow_id: string; input: Record<string, any> }[] = [];
-  public createUseCase(data: { business_id: string; name: string; trigger: TriggerType }): { id: string; business_id: string; name: string; trigger: TriggerType } {
+  public createUseCase(data: { business_id: string; name: string; trigger: string }): { id: string; business_id: string; name: string; trigger: string } {
     const newUC = {
       id: `uc_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       business_id: data.business_id,
