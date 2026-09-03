@@ -58,15 +58,16 @@ export async function POST(req: Request) {
     // --- TURN-BY-TURN AI CONVERSATION (Handling SpeechResult) ---
     console.log(`[Twilio Voice] User said: ${speechResult}`);
     
-    // Save user's speech to DB
+
     if (callSid) dbRepo.addMessage(callSid, 'user', speechResult);
 
     // Get conversation history
-    const history = callSid ? dbRepo.getMessages(callSid) : [];
+    const history = callSid ? dbRepo.messages.filter(m => m.conversation_id === callSid).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) : [];
 
     // Process with Gemini AI
-    const fields = dbRepo.getWorkflowFields(workflow.id);
-    const conditions = dbRepo.getWorkflowConditions(workflow.id);
+    const workflowDetails = dbRepo.getWorkflowWithDetails(workflow.id);
+    const fields = workflowDetails?.fields || [];
+    const conditions = workflowDetails?.conditions || [];
 
     const aiResponse = await geminiService.processTurn(
       callSid || '',
