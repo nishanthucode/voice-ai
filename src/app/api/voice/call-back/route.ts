@@ -12,13 +12,16 @@ export async function POST(req: Request) {
 
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
     
+    // Clean the phone number (remove spaces, dashes, etc.) to ensure E.164 format matching
+    const cleanPhone = customerPhone.replace(/[\s-()]/g, '');
+
     // The Webhook URL where Twilio will fetch the TwiML script when the customer answers the phone
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://voice-ai-iu7q.vercel.app';
     const webhookUrl = `${appUrl}/api/webhooks/twilio`;
 
     const call = await client.calls.create({
       url: webhookUrl,
-      to: customerPhone,
+      to: cleanPhone,
       from: process.env.TWILIO_PHONE_NUMBER,
     });
 
