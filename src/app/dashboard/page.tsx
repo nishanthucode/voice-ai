@@ -107,7 +107,7 @@ export default function DashboardPage() {
     if (!phone) return;
 
     setTriggeringCall(true);
-    showToast(`Initiating callback to ${phone}...`);
+    showToast(`Initiating Telnyx AI callback to ${phone}...`);
     
     try {
       const res = await fetch('/api/voice/call-back', {
