@@ -1,56 +1,124 @@
 import { NextResponse } from 'next/server';
 import { dbRepo } from '@/lib/db/supabase';
-
-// Helper to generate TwiML for Voice
-const generateVoiceTwiML = (message: string) => {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Say voice="Polly.Joanna">${message}</Say>
-    <!-- For a real Pipecat streaming AI, we would use <Connect><Stream url="wss://..." /></Connect> here -->
-    <Pause length="2"/>
-    <Say>Goodbye.</Say>
-</Response>`;
-};
+import { geminiService } from '@/lib/services/gemini';
 
 export async function POST(req: Request) {
   try {
-    // Twilio sends data as URL Encoded form data
     const text = await req.text();
     const params = new URLSearchParams(text);
 
     const from = params.get('From');
     const to = params.get('To');
-    const body = params.get('Body'); // Used for SMS
-    const callStatus = params.get('CallStatus'); // Used for Voice
+    const callStatus = params.get('CallStatus');
+    const callSid = params.get('CallSid'); // Unique ID for this phone call
+    const speechResult = params.get('SpeechResult'); // What the user said (if coming from Gather)
 
-    console.log(`[Twilio Webhook] Received event from ${from} to ${to}`);
-
-    if (callStatus) {
-      // --- VOICE HANDLER ---
-      console.log(`[Twilio Voice] Call status: ${callStatus}`);
-      const business = dbRepo.businesses[0];
-      
-      const greetingMessage = `Hello, thank you for calling ${business.name}. I am the AI Receptionist. I am currently operating in demo mode. Please check the dashboard to view your call records.`;
-
-      // Log this in the DB
-      dbRepo.createConversation({
-        business_id: business.id,
-        workflow_id: 'wf_cake_order_01',
-        phone_number: from || 'Unknown',
-        caller_name: 'Voice Caller',
-        intent: 'Phone Call',
-        summary: `Customer called. Voice integration in progress.`,
-        status: 'COMPLETED'
-      });
-
-      return new NextResponse(generateVoiceTwiML(greetingMessage), {
-        headers: { 'Content-Type': 'text/xml' },
-      });
+    if (!callStatus && !speechResult && !callSid) {
+      return new NextResponse('OK');
     }
 
-    return new NextResponse('OK');
+    const business = dbRepo.businesses[0];
+    const workflow = dbRepo.getWorkflowsByBusiness(business.id)[0];
+    
+    // Fallback to local URL if not deployed, but typically this is hit from outside
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://voice-ai-iu7q.vercel.app';
+    const gatherUrl = `${appUrl}/api/webhooks/twilio`;
+
+    // If it's a new incoming call (no speech result yet)
+    if (!speechResult) {
+      console.log(`[Twilio Voice] New Call started: ${callSid}`);
+      
+      // Create a new conversation in the DB using the CallSid
+      dbRepo.createConversation({
+        id: callSid || undefined,
+        business_id: business.id,
+        workflow_id: workflow.id,
+        phone_number: from || 'Unknown',
+        caller_name: 'Voice Caller',
+        intent: 'Inbound Phone Call',
+        summary: `Call started...`,
+        status: 'ACTIVE'
+      });
+
+      // Send the initial greeting
+      const greeting = workflow.greeting || `Hello, thank you for calling ${business.name}. How can I help you today?`;
+      
+      if (callSid) dbRepo.addMessage(callSid, 'assistant', greeting);
+
+      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Gather input="speech" action="${gatherUrl}" speechTimeout="auto" language="en-US">
+        <Say voice="Polly.Joanna">${greeting}</Say>
+    </Gather>
+</Response>`;
+
+      return new NextResponse(twiml, { headers: { 'Content-Type': 'text/xml' } });
+    }
+
+    // --- TURN-BY-TURN AI CONVERSATION (Handling SpeechResult) ---
+    console.log(`[Twilio Voice] User said: ${speechResult}`);
+    
+    // Save user's speech to DB
+    if (callSid) dbRepo.addMessage(callSid, 'user', speechResult);
+
+    // Get conversation history
+    const history = callSid ? dbRepo.getMessages(callSid) : [];
+
+    // Process with Gemini AI
+    const fields = dbRepo.getWorkflowFields(workflow.id);
+    const conditions = dbRepo.getWorkflowConditions(workflow.id);
+
+    const aiResponse = await geminiService.processTurn(
+      callSid || '',
+      business,
+      workflow,
+      fields,
+      conditions,
+      history,
+      speechResult
+    );
+
+    // Save AI response to DB
+    if (callSid) dbRepo.addMessage(callSid, 'assistant', aiResponse.reply);
+
+    // Update conversation state (fields, summary)
+    const conv = dbRepo.conversations.find(c => c.id === callSid);
+    if (conv) {
+      conv.summary = aiResponse.summary;
+      conv.intent = aiResponse.intent;
+      conv.priority = aiResponse.priority;
+      if (aiResponse.isCompleted) {
+         conv.status = 'COMPLETED';
+      }
+    }
+
+    // Generate TwiML response
+    let twiml = '';
+    if (aiResponse.isCompleted) {
+       twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say voice="Polly.Joanna">${aiResponse.reply}</Say>
+    <Pause length="1"/>
+    <Hangup/>
+</Response>`;
+    } else {
+       twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Gather input="speech" action="${gatherUrl}" speechTimeout="auto" language="en-US">
+        <Say voice="Polly.Joanna">${aiResponse.reply}</Say>
+    </Gather>
+</Response>`;
+    }
+
+    return new NextResponse(twiml, { headers: { 'Content-Type': 'text/xml' } });
+
   } catch (error) {
     console.error('Twilio webhook error:', error);
-    return new NextResponse('Error', { status: 500 });
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say voice="Polly.Joanna">I'm sorry, I am having trouble connecting to my brain. Please try again later.</Say>
+    <Hangup/>
+</Response>`;
+    return new NextResponse(twiml, { headers: { 'Content-Type': 'text/xml' } });
   }
 }
