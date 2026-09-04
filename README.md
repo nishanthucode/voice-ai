@@ -40,23 +40,33 @@ cp .env.example .env
 *(Note: The application operates in zero-setup demo mode out-of-the-box using built-in mock services. For live integrations, configure your API keys below).*
 
 ```env
-# Server & OAuth URL
+# Server & Application URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Google Gemini AI Key (Optional - Fallback Engine Active)
-GEMINI_API_KEY=
+# Supabase Database Configuration (Optional - In-Memory Fallback Active)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Google Gemini 3 AI Engine
+GEMINI_API_KEY=your_gemini_api_key
+
+# Telnyx Telephony & TeXML Integration
+TELNYX_API_KEY=your_telnyx_api_key
+TELNYX_PHONE_NUMBER=your_telnyx_phone_number
+TELNYX_APP_ID=your_telnyx_texml_app_id
+
+# Voice STT & TTS Providers (Optional)
+DEEPGRAM_API_KEY=your_deepgram_api_key
+ELEVENLABS_API_KEY=your_elevenlabs_api_key
 
 # Google Calendar OAuth 2.0 Integration
 GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:3000/api/calendar/callback
 
-# Telephony Webhooks (Optional)
-TELNYX_API_KEY=
-TELNYX_PHONE_NUMBER=
-
-# Authentication Secret
-JWT_SECRET=aura_voice_super_secret_demo_key_2026
+# JWT Authentication Secret
+JWT_SECRET=your_jwt_secret_key_here
 ```
 
 ### **3. Start Development Server**
