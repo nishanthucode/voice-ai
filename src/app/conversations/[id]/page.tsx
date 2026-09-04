@@ -27,6 +27,7 @@ export default function ConversationDetailPage() {
   const [details, setDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [businesses, setBusinesses] = useState<any[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const fetchDetails = async () => {
     setLoading(true);
@@ -96,10 +97,15 @@ export default function ConversationDetailPage() {
         businesses={businesses}
         selectedBusinessId={business?.id || 'biz_bakery_01'}
         onSelectBusiness={() => {}}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <Navbar currentBusinessName={business?.name} />
+        <Navbar 
+          currentBusinessName={business?.name} 
+          onMenuToggle={() => setMobileMenuOpen(true)}
+        />
 
         <main className="p-6 space-y-6 flex-1 overflow-y-auto">
           {/* Top Navigation Back Button */}
