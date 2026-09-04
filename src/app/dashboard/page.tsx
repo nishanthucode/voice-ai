@@ -213,7 +213,36 @@ export default function DashboardPage() {
             </div>
           </div>
 
-
+          {/* KPI Stat Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="glass-card p-5 rounded-2xl border border-slate-800 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                <PhoneMissed className="w-6 h-6 text-indigo-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-100">{totalCalls}</p>
+                <p className="text-xs text-slate-400">Total Conversations</p>
+              </div>
+            </div>
+            <div className="glass-card p-5 rounded-2xl border border-slate-800 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-rose-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-100">{urgentCalls}</p>
+                <p className="text-xs text-slate-400">Urgent Priority</p>
+              </div>
+            </div>
+            <div className="glass-card p-5 rounded-2xl border border-slate-800 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <CalendarCheck2 className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-100">{bookingsCount}</p>
+                <p className="text-xs text-slate-400">Calendar Bookings</p>
+              </div>
+            </div>
+          </div>
 
           {/* Search & Filter Toolbar */}
           <div className="glass-card p-4 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">

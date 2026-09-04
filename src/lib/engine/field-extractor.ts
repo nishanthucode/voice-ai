@@ -75,7 +75,7 @@ export function extractFieldsFromText(
       }
     }
 
-    if ((fieldName === 'required_date' || fieldName === 'preferred_visit_datetime') && !updated[fieldName]) {
+    if ((fieldName === 'required_date' || fieldName === 'preferred_visit_datetime' || fieldName === 'preferred_appointment_datetime') && !updated[fieldName]) {
       if (textLower.includes('tomorrow')) {
         const tomorrow = new Date(Date.now() + 86400000);
         tomorrow.setHours(15, 0, 0, 0);

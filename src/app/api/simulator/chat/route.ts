@@ -8,13 +8,20 @@ export async function POST(req: Request) {
     const { conversation_id, business_id, workflow_id, user_message, language = 'en' } = body;
 
     const bizId = business_id || 'biz_bakery_01';
-    const wfId = workflow_id || 'wf_cake_order_01';
-
     const business = dbRepo.getBusiness(bizId);
-    const workflow = dbRepo.getWorkflowWithDetails(wfId);
 
-    if (!business || !workflow) {
-      return NextResponse.json({ error: 'Business or Workflow not found' }, { status: 400 });
+    if (!business) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 400 });
+    }
+
+    let workflow = workflow_id ? dbRepo.getWorkflowWithDetails(workflow_id) : undefined;
+    if (!workflow || workflow.business_id !== bizId) {
+      const bizWorkflows = dbRepo.getWorkflowsByBusiness(bizId);
+      workflow = bizWorkflows.length > 0 ? dbRepo.getWorkflowWithDetails(bizWorkflows[0].id) : undefined;
+    }
+
+    if (!workflow) {
+      return NextResponse.json({ error: 'Workflow not found for business' }, { status: 400 });
     }
 
     let conversation = conversation_id ? dbRepo.conversations.find(c => c.id === conversation_id) : undefined;
@@ -22,7 +29,7 @@ export async function POST(req: Request) {
     if (!conversation) {
       conversation = dbRepo.createConversation({
         business_id: bizId,
-        workflow_id: wfId,
+        workflow_id: workflow.id,
         caller_name: 'Simulated Caller',
         phone_number: '+1 (555) 321-7654',
         language: language as 'en' | 'hi',

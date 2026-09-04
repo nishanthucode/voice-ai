@@ -110,10 +110,10 @@ export default function LandingPage() {
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-slate-950 border-b border-slate-800 px-6 py-6 space-y-4">
-            <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">Features</a>
+            {/* <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">Features</a>
             <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">How It Works</a>
             <a href="#workflows" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">Workflows</a>
-            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">Pricing</a>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">Pricing</a> */}
             <div className="pt-4 border-t border-slate-800 flex flex-col gap-3">
               <Link href="/simulator" className="w-full text-center py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-semibold text-slate-200">
                 Live Simulator

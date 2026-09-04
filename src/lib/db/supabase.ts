@@ -20,7 +20,7 @@ export const INITIAL_BUSINESSES: Business[] = [
     owner_id: 'user_demo_01',
     name: 'Sweet Moments Bakery',
     business_type: 'Cake Shop & Confectionery',
-    phone_number: '+1 (555) 234-5678',
+    phone_number: '+19402781962',
     address: '124 Baker Street, Suite A, San Francisco, CA',
     timezone: 'America/Los_Angeles',
     default_language: 'en',
@@ -38,6 +38,18 @@ export const INITIAL_BUSINESSES: Business[] = [
     default_language: 'en',
     created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
     updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+  },
+  {
+    id: 'biz_clinic_03',
+    owner_id: 'user_demo_01',
+    name: 'City Care Health Clinic',
+    business_type: 'Medical Clinic & Doctor Practice',
+    phone_number: '+1 (555) 456-7890',
+    address: '450 Health Way, Suite 200, Chicago, IL',
+    timezone: 'America/Chicago',
+    default_language: 'en',
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 3).toISOString(),
   }
 ];
 
@@ -67,6 +79,19 @@ export const INITIAL_WORKFLOWS: Workflow[] = [
     active: true,
     created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
     updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+  },
+  {
+    id: 'wf_clinic_appt_03',
+    business_id: 'biz_clinic_03',
+    name: 'Clinic Appointment Booking',
+    description: 'Generic AI receptionist for medical clinics to handle missed calls, collect patient info, and schedule doctor appointments.',
+    trigger_type: 'MISSED_CALL',
+    greeting: 'Hello, thank you for calling City Care Health Clinic. We missed your call! Are you calling to book a doctor appointment or for a general medical inquiry?',
+    closing_message: 'Thank you! Your appointment request has been scheduled with our doctor and added to our calendar.',
+    language: 'en',
+    active: true,
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 3).toISOString(),
   }
 ];
 
@@ -217,6 +242,52 @@ export const INITIAL_FIELDS: WorkflowField[] = [
     required: false,
     order_index: 5,
     created_at: new Date().toISOString(),
+  },
+
+  // Clinic / Doctor Practice Fields
+  {
+    id: 'f_clinic_01',
+    workflow_id: 'wf_clinic_appt_03',
+    name: 'caller_name',
+    label: 'Patient Name',
+    question: 'May I know the patient full name, please?',
+    data_type: 'string',
+    required: true,
+    order_index: 1,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'f_clinic_02',
+    workflow_id: 'wf_clinic_appt_03',
+    name: 'doctor_department',
+    label: 'Doctor / Speciality Department',
+    question: 'Which doctor or department do you wish to consult with? (e.g. General Physician, Cardiology, Pediatrics, Dental)',
+    data_type: 'string',
+    required: true,
+    order_index: 2,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'f_clinic_03',
+    workflow_id: 'wf_clinic_appt_03',
+    name: 'symptom_reason',
+    label: 'Reason for Visit / Symptoms',
+    question: 'Could you briefly describe your symptoms or reason for the visit?',
+    data_type: 'string',
+    required: true,
+    order_index: 3,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'f_clinic_04',
+    workflow_id: 'wf_clinic_appt_03',
+    name: 'preferred_appointment_datetime',
+    label: 'Preferred Appointment Date & Time',
+    question: 'What date and time would work best for your clinic appointment?',
+    data_type: 'datetime',
+    required: true,
+    order_index: 4,
+    created_at: new Date().toISOString(),
   }
 ];
 
@@ -242,6 +313,18 @@ export const INITIAL_CONDITIONS: WorkflowCondition[] = [
     action_config: {
       set_priority: 'high',
       custom_message: 'High priority lead detected.'
+    },
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'cond_clinic_01',
+    workflow_id: 'wf_clinic_appt_03',
+    field_name: 'symptom_reason',
+    operator: 'contains',
+    comparison_value: 'emergency',
+    action_config: {
+      set_priority: 'urgent',
+      custom_message: 'Flagged as URGENT medical condition!'
     },
     created_at: new Date().toISOString(),
   }

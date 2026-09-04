@@ -84,6 +84,7 @@ export function Sidebar({ businesses, selectedBusinessId, onSelectBusiness, mobi
           <select
             value={selectedBusinessId}
             onChange={(e) => onSelectBusiness(e.target.value)}
+            suppressHydrationWarning
             className="w-full appearance-none bg-slate-800/80 border border-slate-700/80 text-slate-200 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer font-medium"
           >
             {businesses.map((b) => (
@@ -114,6 +115,7 @@ export function Sidebar({ businesses, selectedBusinessId, onSelectBusiness, mobi
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setMobileMenuOpen && setMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 glow-indigo'

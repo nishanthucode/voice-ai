@@ -162,6 +162,18 @@ export class GeminiService {
           { name: 'check_calendar_availability', args: { start_time: targetDateStr }, result: availCheck },
           { name: 'create_calendar_event', args: { title: `${workflow.name}: ${callerName}` }, result: evtRes }
         );
+      } else if (lowerUser.includes('track') || lowerUser.includes('order') || lowerUser.includes('delivery')) {
+        const orderId = newlyExtracted.order_id || 'ORD-8892';
+        const trackRes = await TOOL_REGISTRY.track_order_delivery.execute(business.id, conversationId, {
+          order_id: orderId,
+        });
+        toolCallsExecuted.push({ name: 'track_order_delivery', args: { order_id: orderId }, result: trackRes });
+      } else if (lowerUser.includes('member') || lowerUser.includes('history') || lowerUser.includes('crm')) {
+        const phone = business.phone_number || '+1 (555) 321-7654';
+        const crmRes = await TOOL_REGISTRY.lookup_customer_crm.execute(business.id, conversationId, {
+          phone_number: phone,
+        });
+        toolCallsExecuted.push({ name: 'lookup_customer_crm', args: { phone_number: phone }, result: crmRes });
       }
     }
 

@@ -9,6 +9,7 @@ import {
   Globe, 
   PhoneCall, 
   Mic, 
+  MicOff,
   Volume2, 
   CheckCircle2, 
   Clock, 
@@ -44,8 +45,10 @@ export default function SimulatorPage() {
   const [priority, setPriority] = useState<string>('normal');
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
-  // Audio speech synthesis state for phone call simulation
+  // Audio speech synthesis & recognition state for phone call simulation
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // UI state
@@ -63,23 +66,49 @@ export default function SimulatorPage() {
     try {
       const res = await fetch('/api/businesses');
       const data = await res.json();
-      if (data.businesses) setBusinesses(data.businesses);
+      if (data.businesses && data.businesses.length > 0) {
+        setBusinesses(data.businesses);
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
-  const fetchWorkflows = async () => {
+  const fetchWorkflowsAndReset = async (bizId: string) => {
     try {
-      const res = await fetch(`/api/workflows?business_id=${selectedBusinessId}`);
+      const res = await fetch(`/api/workflows?business_id=${bizId}`);
       const data = await res.json();
       if (data.workflows && data.workflows.length > 0) {
         setWorkflows(data.workflows);
-        setSelectedWorkflowId(data.workflows[0].id);
+        const firstWf = data.workflows[0];
+        setSelectedWorkflowId(firstWf.id);
+        resetConversationWithWorkflow(firstWf);
       }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const resetConversationWithWorkflow = (wf: any) => {
+    setConversationId(null);
+    setExtractedFields({});
+    setEvaluatedConditions([]);
+    setToolCalls([]);
+    setPriority('normal');
+    setIsCompleted(false);
+
+    if (wf) {
+      const initialGreeting = language === 'hi'
+        ? `नमस्ते! ${wf.greeting}`
+        : wf.greeting;
+      
+      setMessages([{ role: 'assistant', content: initialGreeting, timestamp: new Date().toISOString() }]);
+    }
+  };
+
+  const handleResetConversation = () => {
+    const activeWf = workflows.find(w => w.id === selectedWorkflowId) || workflows[0];
+    resetConversationWithWorkflow(activeWf);
   };
 
   useEffect(() => {
@@ -88,33 +117,13 @@ export default function SimulatorPage() {
 
   useEffect(() => {
     if (selectedBusinessId) {
-      fetchWorkflows();
-      handleResetConversation();
+      fetchWorkflowsAndReset(selectedBusinessId);
     }
   }, [selectedBusinessId]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
-
-  const handleResetConversation = () => {
-    setConversationId(null);
-    setMessages([]);
-    setExtractedFields({});
-    setEvaluatedConditions([]);
-    setToolCalls([]);
-    setPriority('normal');
-    setIsCompleted(false);
-
-    const activeWf = workflows.find(w => w.id === selectedWorkflowId) || workflows[0];
-    if (activeWf) {
-      const initialGreeting = language === 'hi'
-        ? `नमस्ते! ${activeWf.greeting}`
-        : activeWf.greeting;
-      
-      setMessages([{ role: 'assistant', content: initialGreeting, timestamp: new Date().toISOString() }]);
-    }
-  };
 
   const speakText = async (text: string) => {
     setIsSpeaking(true);
@@ -139,7 +148,16 @@ export default function SimulatorPage() {
         audio.onerror = () => setIsSpeaking(false);
         audio.play();
       } else {
-        setIsSpeaking(false);
+        // Fallback to browser SpeechSynthesis if TTS fails
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+          utterance.onend = () => setIsSpeaking(false);
+          utterance.onerror = () => setIsSpeaking(false);
+          window.speechSynthesis.speak(utterance);
+        } else {
+          setIsSpeaking(false);
+        }
       }
     } catch (e) {
       console.error('TTS error', e);
@@ -147,11 +165,52 @@ export default function SimulatorPage() {
     }
   };
 
-  const handleSendMessage = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!inputMessage.trim() || loading) return;
+  const startListening = () => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert('Speech Recognition is supported in Chrome, Edge, and Safari!');
+      return;
+    }
 
-    const userText = inputMessage.trim();
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = (e: any) => {
+        console.error('Speech recognition error', e);
+        setIsListening(false);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript && transcript.trim()) {
+          handleSendMessageText(transcript.trim());
+        }
+      };
+
+      recognition.start();
+    } catch (err) {
+      console.error('Start recognition error', err);
+      setIsListening(false);
+    }
+  };
+
+  const handleSendMessageText = async (userText: string) => {
+    if (!userText.trim() || loading) return;
+
     setInputMessage('');
 
     // Append user message immediately
@@ -196,8 +255,13 @@ export default function SimulatorPage() {
     }
   };
 
-  const currentBiz = businesses.find(b => b.id === selectedBusinessId);
-  const currentWf = workflows.find(w => w.id === selectedWorkflowId);
+  const handleSendMessage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    handleSendMessageText(inputMessage);
+  };
+
+  const currentBiz = businesses.find(b => b.id === selectedBusinessId) || businesses[0];
+  const currentWf = workflows.find(w => w.id === selectedWorkflowId) || workflows[0];
 
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-100">
@@ -262,8 +326,10 @@ export default function SimulatorPage() {
                 aria-label="Select Workflow"
                 value={selectedWorkflowId}
                 onChange={(e) => {
-                  setSelectedWorkflowId(e.target.value);
-                  handleResetConversation();
+                  const wfId = e.target.value;
+                  setSelectedWorkflowId(wfId);
+                  const matchedWf = workflows.find(w => w.id === wfId);
+                  if (matchedWf) resetConversationWithWorkflow(matchedWf);
                 }}
                 className="bg-slate-900 border border-slate-700 text-xs font-medium text-slate-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer"
               >
@@ -301,18 +367,27 @@ export default function SimulatorPage() {
                   <div>
                     <h3 className="font-bold text-slate-100 text-sm">{currentBiz?.name} Receptionist</h3>
                     <p className="text-[11px] text-indigo-400">
-                      {isSpeaking ? 'Voice Assistant Speaking...' : 'Connected • Active Voice Call'}
+                      {isSpeaking 
+                        ? '🔊 Assistant Speaking...' 
+                        : isListening 
+                        ? '🎙️ Listening to your mic...' 
+                        : 'Connected • Active Voice Call'}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {isSpeaking && (
-                    <div className="flex items-center gap-1 px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full text-[11px] font-medium animate-pulse">
-                      <Volume2 className="w-3 h-3" />
-                      <span>Audio Active</span>
-                    </div>
-                  )}
+                  <button
+                    onClick={startListening}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+                      isListening
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
+                    }`}
+                  >
+                    {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                    <span>{isListening ? 'Stop Mic' : '🎙️ Speak Mic'}</span>
+                  </button>
 
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border uppercase ${
                     priority === 'urgent'
@@ -328,23 +403,23 @@ export default function SimulatorPage() {
 
               {/* Chat Timeline Scroll */}
               <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-slate-950/50">
-                {messages.map((msg, idx) => {
-                  const isAssistant = msg.role === 'assistant';
+                {messages.map((msg, index) => {
+                  const isUser = msg.role === 'user';
                   return (
                     <div
-                      key={idx}
-                      className={`flex flex-col ${isAssistant ? 'items-start' : 'items-end'}`}
+                      key={index}
+                      className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] text-slate-400">
-                          {isAssistant ? 'Aura Voice AI' : 'Caller'} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        {isAssistant && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mb-1 px-1">
+                        <span>{isUser ? 'Caller' : 'Aura Voice AI'}</span>
+                        <span>•</span>
+                        <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        {!isUser && (
                           <button
+                            type="button"
                             onClick={() => speakText(msg.content)}
-                            className="text-slate-400 hover:text-indigo-400 p-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
-                            title="Replay Audio"
-                            aria-label={`Replay message: ${msg.content.substring(0, 20)}...`}
+                            title="Play Audio Speech"
+                            className="text-indigo-400 hover:text-indigo-300 p-0.5 rounded"
                           >
                             <Volume2 className="w-3 h-3" />
                           </button>
@@ -352,10 +427,10 @@ export default function SimulatorPage() {
                       </div>
 
                       <div
-                        className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed ${
-                          isAssistant
-                            ? 'bg-slate-900 text-slate-100 border border-slate-800 rounded-tl-none shadow-md'
-                            : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-tr-none shadow-lg glow-indigo'
+                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${
+                          isUser
+                            ? 'bg-indigo-600 text-white rounded-tr-none shadow-md glow-indigo font-medium'
+                            : 'bg-slate-900/90 text-slate-200 border border-slate-800 rounded-tl-none shadow-sm'
                         }`}
                       >
                         {msg.content}
@@ -379,10 +454,28 @@ export default function SimulatorPage() {
 
               {/* Input Form */}
               <form onSubmit={handleSendMessage} className="p-3.5 bg-slate-900/90 border-t border-slate-800 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={startListening}
+                  title="Speak via Microphone"
+                  className={`p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                    isListening
+                      ? 'bg-rose-500 text-white border-rose-400 animate-pulse'
+                      : 'bg-slate-800 hover:bg-slate-700 text-indigo-400 border-slate-700'
+                  }`}
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
                 <input
                   type="text"
                   aria-label="Message Input"
-                  placeholder={language === 'hi' ? 'यहाँ अपना संदेश लिखें...' : 'Type caller response (e.g. "I want a 2kg Belgian chocolate cake for tomorrow 3pm")...'}
+                  placeholder={
+                    isListening 
+                      ? 'Listening to your microphone...' 
+                      : language === 'hi' 
+                      ? 'यहाँ अपना संदेश लिखें या माइक बटन दबाएँ...' 
+                      : 'Type or click mic to speak (e.g. "I want to book an appointment for tomorrow 3pm")...'
+                  }
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   disabled={loading}

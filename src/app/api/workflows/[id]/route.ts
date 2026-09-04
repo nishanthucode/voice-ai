@@ -47,6 +47,37 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       });
     }
 
+    // Save conditions (IF rules)
+    if (body.conditions && Array.isArray(body.conditions)) {
+      dbRepo.conditions = dbRepo.conditions.filter(c => c.workflow_id !== id);
+      body.conditions.forEach((c: any, idx: number) => {
+        dbRepo.conditions.push({
+          id: c.id || `cond_${Date.now()}_${idx}`,
+          workflow_id: id,
+          field_name: c.field_name,
+          operator: c.operator || 'equals',
+          comparison_value: c.comparison_value || '',
+          action_config: c.action_config || { set_priority: 'high' },
+          created_at: new Date().toISOString(),
+        });
+      });
+    }
+
+    // Save workflow actions (post-collection actions)
+    if (body.actions && Array.isArray(body.actions)) {
+      dbRepo.actions = dbRepo.actions.filter(a => a.workflow_id !== id);
+      body.actions.forEach((a: any, idx: number) => {
+        dbRepo.actions.push({
+          id: a.id || `act_${Date.now()}_${idx}`,
+          workflow_id: id,
+          action_type: a.action_type || 'create_customer_enquiry',
+          configuration: a.configuration || {},
+          order_index: idx + 1,
+          enabled: a.enabled !== false,
+        });
+      });
+    }
+
     const updated = dbRepo.getWorkflowWithDetails(id);
     return NextResponse.json({ success: true, workflow: updated });
   } catch (err: any) {

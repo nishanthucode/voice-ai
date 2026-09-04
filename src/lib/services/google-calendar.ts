@@ -46,6 +46,42 @@ export class GoogleCalendarService {
     });
   }
 
+  public async handleOAuthCallback(code: string, businessId: string): Promise<boolean> {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/calendar/callback';
+
+    if (!clientId || !clientSecret) {
+      return false;
+    }
+
+    try {
+      const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+      const { tokens } = await oauth2Client.getToken(code);
+
+      let connection = dbRepo.calendarConnections.find(c => c.business_id === businessId);
+      if (connection) {
+        if (tokens.refresh_token) connection.refresh_token = tokens.refresh_token;
+        connection.updated_at = new Date().toISOString();
+      } else {
+        dbRepo.calendarConnections.push({
+          id: `cal_conn_${Date.now()}`,
+          business_id: businessId,
+          google_account_email: 'connected_account@gmail.com',
+          refresh_token: tokens.refresh_token || 'demo_refresh_token',
+          calendar_id: 'primary',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+      }
+      return true;
+    } catch (err) {
+      console.error('[Google OAuth] Error exchanging authorization code:', err);
+      return false;
+    }
+  }
+
+
   public async checkAvailability(
     businessId: string,
     startTimeIso: string,

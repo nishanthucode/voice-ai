@@ -15,18 +15,49 @@ import { geminiService } from '@/lib/services/gemini';
  * Set your Telnyx TeXML App webhook URL to:
  * https://<your-vercel-url>/api/webhooks/telnyx
  */
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 export async function POST(req: Request) {
   try {
     const text = await req.text();
     const params = new URLSearchParams(text);
 
     const from = params.get('From');
-    const callSid = params.get('CallSid');       // Telnyx TeXML uses same name
-    const speechResult = params.get('SpeechResult'); // Same as TwiML
+    const to = params.get('To');
+    const callSid = params.get('CallSid');       // Telnyx TeXML uses CallSid
+    const speechResult = params.get('SpeechResult'); // TwiML/TeXML speech result
+    const callStatus = params.get('CallStatus')?.toLowerCase();
 
-    // Look up the first available business and its workflow
-    const business = dbRepo.businesses[0];
-    const workflow = dbRepo.getWorkflowsByBusiness(business.id)[0];
+    // ─────────────────────────────────────────────
+    // 0) HANGUP / CALL COMPLETED EVENT
+    // ─────────────────────────────────────────────
+    if (callStatus === 'completed' || callStatus === 'hangup' || callStatus === 'no-answer' || callStatus === 'canceled') {
+      console.log(`[Telnyx] Call ended (${callStatus}) for CallSid: ${callSid}`);
+      if (callSid) {
+        const conv = dbRepo.conversations.find(c => c.id === callSid);
+        if (conv) {
+          conv.status = 'COMPLETED';
+          conv.ended_at = new Date().toISOString();
+          if (conv.summary === 'Call started...') {
+            conv.summary = 'Call completed by caller.';
+          }
+        }
+      }
+      return new NextResponse('<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>', {
+        headers: { 'Content-Type': 'text/xml' },
+      });
+    }
+
+    // Look up matching business by phone number, or default to first business
+    const business = dbRepo.businesses.find(b => to && b.phone_number.replace(/\D/g, '').includes(to.replace(/\D/g, ''))) || dbRepo.businesses[0];
+    const workflow = dbRepo.getWorkflowsByBusiness(business.id)[0] || dbRepo.workflows[0];
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://voice-ai-iu7q.vercel.app';
     const gatherUrl = `${appUrl}/api/webhooks/telnyx`;
@@ -35,7 +66,7 @@ export async function POST(req: Request) {
     // A) NEW CALL — no speech yet, send greeting
     // ─────────────────────────────────────────────
     if (!speechResult) {
-      console.log(`[Telnyx] New call: ${callSid} from ${from}`);
+      console.log(`[Telnyx] New call: ${callSid} from ${from} to ${to}`);
 
       dbRepo.createConversation({
         id: callSid || undefined,
@@ -54,10 +85,11 @@ export async function POST(req: Request) {
 
       if (callSid) dbRepo.addMessage(callSid, 'assistant', greeting);
 
+      const safeGreeting = escapeXml(greeting);
       const texml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Gather input="speech" action="${gatherUrl}" speechTimeout="auto" language="en-IN">
-        <Say voice="Polly.Joanna">${greeting}</Say>
+        <Say voice="Polly.Joanna">${safeGreeting}</Say>
     </Gather>
 </Response>`;
 
@@ -99,17 +131,22 @@ export async function POST(req: Request) {
       conv.summary = aiResponse.summary;
       conv.intent = aiResponse.intent;
       conv.priority = aiResponse.priority;
-      if (aiResponse.isCompleted) conv.status = 'COMPLETED';
+      if (aiResponse.isCompleted) {
+        conv.status = 'COMPLETED';
+        conv.ended_at = new Date().toISOString();
+      }
     }
 
     // ─────────────────────────────────────────────
     // C) BUILD TEXML RESPONSE (same syntax as TwiML)
     // ─────────────────────────────────────────────
+    const safeReply = escapeXml(aiResponse.reply);
     let texml: string;
+
     if (aiResponse.isCompleted) {
       texml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Say voice="Polly.Joanna">${aiResponse.reply}</Say>
+    <Say voice="Polly.Joanna">${safeReply}</Say>
     <Pause length="1"/>
     <Hangup/>
 </Response>`;
@@ -117,7 +154,7 @@ export async function POST(req: Request) {
       texml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Gather input="speech" action="${gatherUrl}" speechTimeout="auto" language="en-IN">
-        <Say voice="Polly.Joanna">${aiResponse.reply}</Say>
+        <Say voice="Polly.Joanna">${safeReply}</Say>
     </Gather>
 </Response>`;
     }
