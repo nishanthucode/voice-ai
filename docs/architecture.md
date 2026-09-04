@@ -10,8 +10,8 @@ Aura Voice is structured around a **generic workflow core**. The AI receptionist
 
 ```mermaid
 graph TD
-    User["Customer / Phone Caller"] -->|Missed Call / Audio| Twilio["Twilio Telephony Webhook"]
-    Twilio -->|Webhook / API| API["Next.js App Server / API Routes"]
+    User["Customer / Phone Caller"] -->|Missed Call / Audio| Telnyx["Telnyx TeXML Webhook"]
+    Telnyx -->|Webhook / API| API["Next.js App Server / API Routes"]
     
     subgraph "Core Generic Platform Engine"
         API --> DB["PostgreSQL / Supabase DB"]
@@ -31,7 +31,7 @@ graph TD
     subgraph "Voice & Simulation Pipeline"
         User <-->|Interactive Test| Simulator["Text & Audio Phone Simulator"]
         Simulator <--> Engine
-        Twilio <--> Pipecat["Pipecat Voice Worker"]
+        Telnyx <--> Pipecat["Pipecat Voice Worker"]
         Pipecat <--> Deepgram["Deepgram STT"]
         Pipecat <--> ElevenLabs["ElevenLabs TTS"]
         Pipecat <--> Gemini
@@ -51,4 +51,4 @@ graph TD
 2. **Generic Workflow Engine**: Executes dynamic field extraction (`field-extractor.ts`), evaluates condition rules (`conditions.ts`), and synthesizes custom prompt instructions (`prompt-builder.ts`).
 3. **Gemini 3 LLM Engine**: Receives system prompts and handles natural language conversation while triggering native function calls.
 4. **Central Tool Registry**: Authorizes and runs external tool operations (`check_calendar_availability`, `create_calendar_event`, `create_customer_enquiry`) while persisting audit records.
-5. **Voice Pipeline (Pipecat Worker)**: Manages real-time WebSockets/RTP audio streams connecting Twilio, Deepgram STT, Gemini 3, and ElevenLabs TTS.
+5. **Voice Pipeline (Pipecat Worker)**: Manages real-time WebSockets/RTP audio streams connecting Telnyx, Deepgram STT, Gemini 3, and ElevenLabs TTS.

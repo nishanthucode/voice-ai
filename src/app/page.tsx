@@ -375,7 +375,7 @@ export default function LandingPage() {
               <span className="text-4xl font-extrabold text-indigo-500/40 font-mono">01</span>
               <h4 className="text-base font-bold text-slate-100">Connect Phone & Calendar</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Link your business phone number via Twilio and authorize Google Calendar with 1-click OAuth.
+                Link your business phone number via Telnyx and authorize Google Calendar with 1-click OAuth.
               </p>
             </div>
 
@@ -475,7 +475,7 @@ export default function LandingPage() {
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> 5 Multi-Business Tenants</li>
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Full Google Calendar Tool Calling</li>
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Priority Urgent Lead Alerts</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Twilio Phone Number Included</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Telnyx Phone Number Included</li>
               </ul>
             </div>
             <Link

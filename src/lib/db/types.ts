@@ -174,7 +174,7 @@ export interface CallRecord {
   id: string;
   business_id: string;
   conversation_id?: string;
-  provider: 'twilio' | 'simulator';
+  provider: 'telnyx' | 'simulator';
   provider_call_id: string;
   direction: 'inbound' | 'outbound_callback';
   status: 'RECEIVED' | 'MISSED' | 'CALLBACK_QUEUED' | 'CALLBACK_INITIATED' | 'CONNECTED' | 'AI_CONVERSATION' | 'COMPLETED' | 'NO_ANSWER' | 'CALLBACK_FAILED' | 'FAILED';

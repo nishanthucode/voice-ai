@@ -33,7 +33,7 @@ export class TwilioService {
     const record: CallRecord = {
       id: `call_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       business_id: business.id,
-      provider: 'twilio',
+      provider: 'telnyx',
       provider_call_id: params.CallSid,
       direction: 'inbound',
       status: 'MISSED',

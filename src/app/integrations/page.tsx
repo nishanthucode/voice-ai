@@ -204,7 +204,7 @@ export default function IntegrationsPage() {
             {showDevDetails && (
               <div className="p-6 border-t border-slate-800/80 space-y-4 bg-slate-950/60 animate-in fade-in slide-in-from-top-2">
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 block mb-1">Telnyx / Twilio Webhook Target URL</label>
+                  <label className="text-xs font-semibold text-slate-400 block mb-1">Telnyx Webhook Target URL</label>
                   <div className="flex items-center gap-2 max-w-xl">
                     <input
                       type="text"

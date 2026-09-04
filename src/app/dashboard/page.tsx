@@ -103,7 +103,7 @@ export default function DashboardPage() {
 
   const handleSimulateCallback = async () => {
     // We'll prompt the user for their phone number so the AI can call them back
-    const phone = window.prompt("Enter your verified Twilio phone number to receive the AI callback (e.g., +14053577940):", "+1");
+    const phone = window.prompt("Enter your verified Telnyx phone number to receive the AI callback (e.g., +18142509863):", "+1");
     if (!phone) return;
 
     setTriggeringCall(true);
