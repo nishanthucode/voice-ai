@@ -20,7 +20,7 @@ export const INITIAL_BUSINESSES: Business[] = [
     owner_id: 'user_demo_01',
     name: 'Sweet Moments Bakery',
     business_type: 'Cake Shop & Confectionery',
-    phone_number: '+19402781962',
+    phone_number: '+18142509863',
     address: '124 Baker Street, Suite A, San Francisco, CA',
     timezone: 'America/Los_Angeles',
     default_language: 'en',
