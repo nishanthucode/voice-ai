@@ -29,8 +29,15 @@ import {
   GitFork
 } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
 export default function LandingPage() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  React.useEffect(() => {
+    router.replace('/dashboard');
+  }, [router]);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);

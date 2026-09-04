@@ -16,16 +16,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If user is NOT logged in and trying to access any protected page
+  // If user is NOT logged in and trying to access any protected page (including / or /dashboard)
   if (!token && !isLoginPage) {
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  // If user IS logged in and trying to access /login page
-  if (token && isLoginPage) {
-    const homeUrl = new URL('/', request.url);
-    return NextResponse.redirect(homeUrl);
+  // If user IS logged in and trying to access /login or root /
+  if (token && (isLoginPage || pathname === '/')) {
+    const dashboardUrl = new URL('/dashboard', request.url);
+    return NextResponse.redirect(dashboardUrl);
   }
 
   return NextResponse.next();
