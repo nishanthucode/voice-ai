@@ -82,7 +82,7 @@ export default function LandingPage() {
           {/* Primary CTA Buttons on Right */}
           <div className="hidden md:flex items-center gap-4">
             <Link
-              href="/simulator"
+              href="/dashboard"
               className="text-sm font-semibold text-slate-300 hover:text-white px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5"
             >
               <Play className="w-3.5 h-3.5 text-teal-400 fill-current" />
@@ -115,7 +115,7 @@ export default function LandingPage() {
             <a href="#workflows" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">Workflows</a>
             <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-slate-300">Pricing</a> */}
             <div className="pt-4 border-t border-slate-800 flex flex-col gap-3">
-              <Link href="/simulator" className="w-full text-center py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-semibold text-slate-200">
+              <Link href="/dashboard" className="w-full text-center py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-semibold text-slate-200">
                 Live Simulator
               </Link>
               <Link href="/dashboard" className="w-full text-center py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold">
